@@ -1,0 +1,13 @@
+create table users (
+	userId int primary key AUTO_INCREMENT,
+    userName varchar(255),
+    password varchar(255),
+    role varchar(255)
+)
+
+create table customers (
+	id int primary key AUTO_INCREMENT,
+    email varchar(255),
+    name varchar(255),
+    active tinyint
+)

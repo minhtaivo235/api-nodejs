@@ -11,3 +11,8 @@ create table customers (
     name varchar(255),
     active tinyint
 )
+
+create table category (
+	id int primary key AUTO_INCREMENT,    
+    name varchar(255)    
+);

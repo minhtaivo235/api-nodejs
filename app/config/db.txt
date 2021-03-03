@@ -16,3 +16,14 @@ create table category (
 	id int primary key AUTO_INCREMENT,    
     name varchar(255)    
 );
+
+create table product (
+	id int primary key AUTO_INCREMENT,    
+    categoryId int,
+    name varchar(255),
+    price int,
+    expDate datetime,
+    createAt datetime,
+    createBy varchar(255),
+    foreign key (categoryId) references category(id)    
+);

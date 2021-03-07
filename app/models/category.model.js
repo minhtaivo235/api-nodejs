@@ -79,7 +79,7 @@ Category.remove = (id, result) => {
   sql.query("DELETE FROM category WHERE id = ?", id, (err, res) => {
     if (err) {
       console.log("error: ", err);
-      result(null, err);
+      result(err, null);
       return;
     }
 

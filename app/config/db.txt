@@ -2,6 +2,7 @@ create table users (
 	userId int primary key AUTO_INCREMENT,
     userName varchar(255),
     password varchar(255),
+    refreshToken varchar(255) null,
     role varchar(255)
 )
 

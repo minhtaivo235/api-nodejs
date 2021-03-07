@@ -2,27 +2,26 @@ const sql = require("./db.js");
 
 // constructor
 const User = function (user) {
-  this.userName = user.userName;
+  this.username = user.username;
   this.password = user.password;
-  this.role = user.role;
 };
 
 User.create = (newUser, result) => {
-    const defaultRole = 'USER';
-  sql.query("INSERT INTO users (userName, password, role) values (?,?,?)", [newUser.userName, newUser.password, defaultRole], (err, res) => {
+  const defaultRole = 'USER';
+  sql.query("INSERT INTO users (username, password, role) values (?,?,?)", [newUser.username, newUser.password, defaultRole], (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
       return;
     }
 
-    console.log("created user: ", { id: res.userId, ...newUser });
-    result(null, { id: res.userId, ...newUser });
+    console.log("created user: ", { id: res.id, ...newUser });
+    result(null, { id: res.id, ...newUser });
   });
 };
 
 User.login = (reqUser, result) => {
-  sql.query("SELECT * FROM users WHERE userName = ? and password = ?", [reqUser.userName, reqUser.password], (err, res) => {
+  sql.query("SELECT * FROM users WHERE username = ? and password = ?", [reqUser.username, reqUser.password], (err, res) => {
     if (err) {
       console.log("error: ", err);
       result(err, null);
@@ -53,6 +52,26 @@ User.findById = (userId, result) => {
   });
 };
 
+User.findByUsername = (username, result) => {
+  sql.query(`SELECT * FROM users WHERE username = '${username}'`, (err, res) => {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+      return;
+    }
+
+    if (res.length) {
+      console.log("found user: ", res[0]);
+      result(null, res[0]);
+      return;
+    }
+
+    // not found Customer with the id
+    result(null, null);
+    return;
+  });
+};
+
 User.getAll = result => {
   sql.query("SELECT * FROM users", (err, res) => {
     if (err) {
@@ -66,28 +85,29 @@ User.getAll = result => {
   });
 };
 
-// User.updateById = (id, customer, result) => {
-//   sql.query(
-//     "UPDATE customers SET email = ?, name = ?, active = ? WHERE id = ?",
-//     [customer.email, customer.name, customer.active, id],
-//     (err, res) => {
-//       if (err) {
-//         console.log("error: ", err);
-//         result(null, err);
-//         return;
-//       }
+User.updateRefreshToken = (username, refreshToken, result) => {
+  sql.query(
+    "UPDATE users SET refreshToken = ? WHERE username = ?",
+    [refreshToken, username],
+    (err, res) => {
+      if (err) {
+        console.log("error: ", err);
+        result(null, err);
+        return;
+      }
 
-//       if (res.affectedRows == 0) {
-//         // not found Customer with the id
-//         result({ kind: "not_found" }, null);
-//         return;
-//       }
+      if (res.affectedRows == 0) {
+        // not found Customer with the id
+        result({ kind: "not_found" }, null);
+        return;
+      }
 
-//       console.log("updated customer: ", { id: id, ...customer });
-//       result(null, { id: id, ...customer });
-//     }
-//   );
-// };
+      console.log("updated user: ", { username: username, refreshToken: refreshToken });
+      result(null, { username: username, refreshToken: refreshToken });
+      return;
+    }
+  );
+};
 
 // User.remove = (id, result) => {
 //   sql.query("DELETE FROM customers WHERE id = ?", id, (err, res) => {

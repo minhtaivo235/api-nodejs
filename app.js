@@ -1,23 +1,24 @@
 const express = require("express");
+const createError = require('http-errors');
+require('express-async-errors');
+const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 const cors = require('cors');
-const bodyParser = require("body-parser");
+
+// const authRouter = require('./app/auth/auth.routes');
+// const userRouter = require('./src/users/users.routes');
 
 const app = express();
-// app.use(function(req, res, next) {
-//   // Mọi domain
-//   res.header("Access-Control-Allow-Origin", "*");
- 
-//   // Domain nhất định
-//   // res.header("Access-Control-Allow-Origin", "https://freetuts.net");
- 
-//   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-//   next();
-// });
 
-app.use(cors());
 
-// parse requests of content-type - application/json
+
+// app.use(
+// 	bodyParser.urlencoded({
+// 		extended: false,
+// 	}),
+// );
 app.use(bodyParser.json());
+app.use(cors());
 
 // parse requests of content-type - application/x-www-form-urlencoded
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -31,6 +32,17 @@ require("./app/routes/customer.routes.js")(app);
 require("./app/routes/user.routes.js")(app);
 require("./app/routes/category.routes")(app);
 require("./app/routes/product.routes")(app);
+
+// app.use('/auth', authRouter);
+
+app.use((req, res, next) => {
+	next(createError(404));
+});
+
+app.use((err, req, res) => {
+	console.log(err.stack);
+	res.status(err.status || 500).send(err.message);
+});
 
 // set port, listen for requests
 const PORT = process.env.PORT || 3000;

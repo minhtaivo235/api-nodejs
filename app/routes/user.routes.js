@@ -3,6 +3,8 @@ module.exports = app => {
   
     // Create a new Customer
     app.post("/users", users.create);
+    
+    app.post("/users/refreshToken", users.refreshToken);
 
     // Find User with username and password
     app.post("/users/login", users.login);

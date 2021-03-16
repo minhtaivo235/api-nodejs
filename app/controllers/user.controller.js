@@ -108,12 +108,12 @@ exports.login = (req, res) => {
         password: req.body.password,
       });
 
-      User.findByUsername(userPresent.username, async (err, data) => {
-        if (!data) {
+      User.findByUsername(userPresent.username, async (err, user) => {
+        if (!user) {
           res.status(409).send('The account name does not exist.');
         }
         else {
-          const isPasswordValid = bcrypt.compareSync(userPresent.password, data.password);
+          const isPasswordValid = bcrypt.compareSync(userPresent.password, user.password);
           if (!isPasswordValid) {
             return res.status(401).send('Mật khẩu không chính xác.');
           }
@@ -123,7 +123,7 @@ exports.login = (req, res) => {
             process.env.ACCESS_TOKEN_SECRET || jwtVariable.accessTokenSecret;
 
           const dataForAccessToken = {
-            username: data.username,
+            username: user.username,
           };
           const accessToken = await authMethod.generateToken(
             dataForAccessToken,
@@ -137,9 +137,9 @@ exports.login = (req, res) => {
           }
 
           let refreshToken = randToken.generate(jwtVariable.refreshTokenSize); // tạo 1 refresh token ngẫu nhiên
-          if (!data.refreshToken) {
+          if (!user.refreshToken) {
             // Nếu user này chưa có refresh token thì lưu refresh token đó vào database
-            User.updateRefreshToken(data.username, refreshToken, (err, receiveData) => {
+            User.updateRefreshToken(user.username, refreshToken, (err, receiveData) => {
               if (err) {
                 if (err.kind === "not_found") {
                   res.status(404).send({
@@ -154,14 +154,19 @@ exports.login = (req, res) => {
             });
           } else {
             // Nếu user này đã có refresh token thì lấy refresh token đó từ database
-            refreshToken = data.refreshToken;
+            refreshToken = user.refreshToken;
+          }
+
+          profile = {
+            username: user.username,
+            role: user.role
           }
 
           return res.json({
             msg: 'Đăng nhập thành công.',
             accessToken,
             refreshToken,
-            data,
+            profile,
           });
         }
 
